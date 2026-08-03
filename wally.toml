@@ -1,0 +1,23 @@
+[package]
+name = "bigfootpp/skiplist"
+version = "0.1.0"
+registry = "https://github.com/UpliftGames/wally-index"
+license = "MIT"
+authors = ["Bigfoot"]
+description = "A simple skiplist implementation in LuaU"
+repository = "https://github.com/Bigfootpp/skiplist-luau"
+realm = "shared"
+exclude = ["**"]
+
+include = [
+    "default.project.json",
+    "src",
+    "src/**",
+    "LICENSE",
+    "README.md",
+    "wally.toml"
+]
+
+[dependencies]
+
+[dev-dependencies]

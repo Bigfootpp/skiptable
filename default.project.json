@@ -1,0 +1,6 @@
+{
+  "name": "skiplist",
+  "tree": {
+		"$path": "src"
+	}
+}

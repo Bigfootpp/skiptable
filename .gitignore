@@ -1,0 +1,19 @@
+# Project place file
+skiplist-luau.rbxlx
+
+*.rbxlx.lock
+*.rbxl.lock
+
+Packages/
+DevPackages/
+ServerPackages/
+
+.vscode/
+
+sourcemap.json
+
+bin/
+obj/
+temp/
+
+test.config.luau
