@@ -3,6 +3,6 @@
 registry = "test"
 
 [[package]]
-name = "bigfootpp/skiplist"
+name = "bigfootpp/skiptable"
 version = "0.1.0"
 dependencies = []

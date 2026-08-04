@@ -1,5 +1,5 @@
 {
-  "name": "skiplist",
+  "name": "skiptable",
   "tree": {
 		"$path": "src"
 	}

@@ -1,11 +1,11 @@
 [package]
-name = "bigfootpp/skiplist"
+name = "bigfootpp/skiptable"
 version = "0.1.0"
 registry = "https://github.com/UpliftGames/wally-index"
 license = "MIT"
 authors = ["Bigfoot"]
-description = "A simple skiplist implementation in LuaU"
-repository = "https://github.com/Bigfootpp/skiplist-luau"
+description = "A simple skiptable implementation in LuaU"
+repository = "https://github.com/Bigfootpp/skiptable-luau"
 realm = "shared"
 exclude = ["**"]
 

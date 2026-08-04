@@ -1,5 +1,5 @@
 {
-  "name": "Skiplist",
+  "name": "Skiptable",
   "tree": {
     "$className": "DataModel",
 
@@ -9,7 +9,7 @@
       },
       "Packages": {
         "$className": "Folder",
-        "Skiplist": {
+        "Skiptable": {
           "$path": "src"
         }
       }
