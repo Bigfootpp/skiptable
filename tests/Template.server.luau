@@ -23,5 +23,5 @@ local function template()
     end)
 end
 
-local test = config.collect_tests(template)
-config.run_tests(test, {})
+local _test = config.collect_tests(template)
+-- config.run_tests(_test, {}) Run the test

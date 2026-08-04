@@ -48,16 +48,20 @@ local function skiptableTests()
 			if #sortedKeys > 0 then
 				local minK = sortedKeys[1]
 				local maxK = sortedKeys[#sortedKeys]
-				local expectedValues: { string } = {}
+				local expectedValues: { [number]: string } = {}
+				local expectedCount = 0
 				for _, k in sortedKeys do
-					table.insert(expectedValues, refMap[k])
+					expectedValues[k] = refMap[k]
+					expectedCount += 1
 				end
 
 				local actualValues = skiptable:getRange(minK, maxK)
-				expect(#actualValues).is(#expectedValues)
-				for i = 1, #expectedValues do
-					expect(actualValues[i]).is(expectedValues[i])
+				local actualCount = 0
+				for k, v in actualValues do
+					actualCount += 1
+					expect(v).is(expectedValues[k])
 				end
+				expect(actualCount).is(expectedCount)
 			end
 		end
 
@@ -89,18 +93,22 @@ local function skiptableTests()
 				local minK = random:NextInteger(100, 500)
 				local maxK = minK + random:NextInteger(50, 400)
 
-				local expected: { string } = {}
+				local expected: { [number]: string } = {}
+				local expectedCount = 0
 				for _, k in getSortedKeys() do
 					if k >= minK and k <= maxK then
-						table.insert(expected, refMap[k])
+						expected[k] = refMap[k]
+						expectedCount += 1
 					end
 				end
 
 				local actual = skiptable:getRange(minK, maxK)
-				expect(#actual).is(#expected)
-				for i = 1, #expected do
-					expect(actual[i]).is(expected[i])
+				local actualCount = 0
+				for k, v in actual do
+					actualCount += 1
+					expect(v).is(expected[k])
 				end
+				expect(actualCount).is(expectedCount)
 			end
 		end)
 
