@@ -60,22 +60,7 @@ end
 
 function SkiptableModule.set<K, V>(self: Types.SkiptablePrivate<K, V>, key: K, value: V): ()
 	local nodeLevel = randomLevel()
-	if nodeLevel > #self._head.nexts then
-		for level = #self._head.nexts + 1, nodeLevel do
-			self._head.nexts[level] = nil :: any
-		end
-	end
-
-	local maxLevel = math.max(#self._head.nexts, nodeLevel)
-	local update: { Types.Node<K, V> } = table.create(maxLevel) :: any
-	local currentNode = self._head
-
-	for level = maxLevel, 1, -1 do
-		while currentNode.nexts[level] ~= nil and self._lessFun(currentNode.nexts[level].key, key) do
-			currentNode = currentNode.nexts[level]
-		end
-		update[level] = currentNode
-	end
+	local update = self:_getPredecessors(key)
 
 	local existingNode = if update[1] ~= nil then update[1].nexts[1] else nil
 	if existingNode ~= nil and self._equalFun(existingNode.key, key) then
@@ -102,24 +87,28 @@ function SkiptableModule.remove<K, V>(self: Types.SkiptablePrivate<K, V>, key: K
 	local targetNode = if update[1] ~= nil then update[1].nexts[1] else nil
 
 	if targetNode ~= nil and self._equalFun(targetNode.key, key) then
-		Utils._removeNode(targetNode, update)
+		Utils.removeNode(targetNode, update)
 		return true
 	end
 
 	return false
 end
 
+function SkiptableModule.iterRange<K, V>(
+	self: Types.SkiptablePrivate<K, V>,
+	minKey: K,
+	maxKey: K
+): Types.RangeIteratorPublic<K, V>
+	local update = self:_getPredecessors(minKey)
+	local startNode = if update[1] ~= nil then update[1].nexts[1] else nil
+
+	return RangeIterator.new(startNode, maxKey, self._lessFun, self._equalFun, update)
+end
+
 function SkiptableModule.get<K, V>(self: Types.SkiptablePrivate<K, V>, key: K): V?
-	local currentNode = self._head
-	local levels = #self._head.nexts
+	local update = self:_getPredecessors(key)
+	local targetNode = if update[1] ~= nil then update[1].nexts[1] else nil
 
-	for currentLevel = levels, 1, -1 do
-		while currentNode.nexts[currentLevel] ~= nil and self._lessFun(currentNode.nexts[currentLevel].key, key) do
-			currentNode = currentNode.nexts[currentLevel]
-		end
-	end
-
-	local targetNode = currentNode.nexts[1]
 	if targetNode ~= nil and self._equalFun(targetNode.key, key) then
 		return targetNode.value
 	end
@@ -132,40 +121,13 @@ function SkiptableModule.getRange<K, V>(
 	minKey: K,
 	maxKey: K,
 	maxResults: number?
-): { V }
-	local startNode = self._head
-	local levels = #self._head.nexts
-
-	for currentLevel = levels, 1, -1 do
-		while startNode.nexts[currentLevel] ~= nil and self._lessFun(startNode.nexts[currentLevel].key, minKey) do
-			startNode = startNode.nexts[currentLevel]
-		end
-	end
-
-	local currentNode = startNode.nexts[1]
-	local results: { V } = {}
-	local max = if maxResults ~= nil then maxResults else math.huge
-
-	while currentNode ~= nil and (self._lessFun(currentNode.key, maxKey) or self._equalFun(currentNode.key, maxKey)) do
-		table.insert(results, currentNode.value)
-		if #results >= max then
-			break
-		end
-		currentNode = currentNode.nexts[1]
+): { [K]: V }
+	local results: { [K]: V } = {}
+	for k, v, _ in self:iterRange(minKey, maxKey) do
+		results[k] = v
 	end
 
 	return results
-end
-
-function SkiptableModule.iterRange<K, V>(
-	self: Types.SkiptablePrivate<K, V>,
-	minKey: K,
-	maxKey: K
-): Types.RangeIteratorPublic<K, V>
-	local update = self:_getPredecessors(minKey)
-	local startNode = if update[1] ~= nil then update[1].nexts[1] else nil
-
-	return RangeIterator.new(startNode, maxKey, self._lessFun, self._equalFun, self, update)
 end
 
 return SkiptableModule

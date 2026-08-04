@@ -19,7 +19,6 @@ function RangeIterator.new<K, V>(
 	maxKey: K,
 	lessFun: (K, K) -> boolean,
 	equalFun: (K, K) -> boolean,
-	skiptable: Types.SkiptablePrivate<K, V>,
 	update: { Types.Node<K, V> }
 ): Types.RangeIteratorPublic<K, V>
 	local self = setmetatable({}, RangeIterator) :: Types.RangeIteratorPrivate<K, V>
@@ -27,7 +26,6 @@ function RangeIterator.new<K, V>(
 	self._maxKey = maxKey
 	self._lessFun = lessFun
 	self._equalFun = equalFun
-	self._skiptable = skiptable
 	self._update = update
 	return self
 end
@@ -47,16 +45,12 @@ function RangeIterator.next<K, V>(self: Types.RangeIteratorPrivate<K, V>): (K?, 
 
 	local node = self._current :: Types.Node<K, V>
 
-	for level = 1, #self._update do
-		while self._update[level].nexts[level] ~= nil and self._lessFun(self._update[level].nexts[level].key, node.key) do
-			self._update[level] = self._update[level].nexts[level]
-		end
-	end
+	Utils.advancePredecessors(self._update, node, self._lessFun)
 
 	local update = table.clone(self._update)
 	local cursor: Types.Cursor<V> = {
 		remove = function()
-			Utils._removeNode(node, update)
+			Utils.removeNode(node, update)
 		end,
 		update = function(value: V)
 			node.value = value

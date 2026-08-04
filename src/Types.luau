@@ -5,11 +5,14 @@ export type Cursor<V> = {
     update: (value: V) -> ()
 }
 
-export type RangeIteratorPublic<K = any, V = any> = {
+export type RangeIteratorPublic<K = any, V = any> = typeof(
+	setmetatable({} :: {
 	hasNext: (self: RangeIteratorPublic<K, V>) -> boolean,
 	next: (self: RangeIteratorPublic<K, V>) -> (K?, V?, Cursor<V>?),
-	__iter: (self: RangeIteratorPublic<K, V>) -> () -> (K?, V?, Cursor<V>?),
-}
+}, {} :: {
+	__iter: (self: RangeIteratorPublic<K, V>) -> () -> (K?, V?, Cursor<V>?)
+})
+)
 
 export type Node<K = any, V = any> = {
 	key: K,
