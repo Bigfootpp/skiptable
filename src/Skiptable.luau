@@ -77,7 +77,6 @@ function SkiptableModule.set<K, V>(self: Types.SkiptablePrivate<K, V>, key: K, v
 		update[level] = currentNode
 	end
 
-	-- CORRECTION : Si la clé existe déjà, mettre à jour la valeur et ne pas créer de doublon
 	local existingNode = if update[1] ~= nil then update[1].nexts[1] else nil
 	if existingNode ~= nil and self._equalFun(existingNode.key, key) then
 		existingNode.value = value
