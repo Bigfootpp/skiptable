@@ -122,9 +122,16 @@ function SkiptableModule.getRange<K, V>(
 	maxKey: K,
 	maxResults: number?
 ): { [K]: V }
+	local limit = maxResults or math.huge
 	local results: { [K]: V } = {}
+	local count = 0
+
 	for k, v, _ in self:iterRange(minKey, maxKey) do
 		results[k] = v
+		count += 1
+		if count >= limit then
+			break
+		end
 	end
 
 	return results
