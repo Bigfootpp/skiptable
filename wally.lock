@@ -5,4 +5,9 @@ registry = "test"
 [[package]]
 name = "bigfootpp/skiptable"
 version = "0.2.0"
+dependencies = [["spec", "bigfootpp/spec@0.1.0"]]
+
+[[package]]
+name = "bigfootpp/spec"
+version = "0.1.0"
 dependencies = []

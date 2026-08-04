@@ -4,20 +4,20 @@
     "$className": "DataModel",
 
     "ReplicatedStorage": {
-      "Tests": {
-        "$path": "tests"
-      },
       "Packages": {
         "$className": "Folder",
         "Skiptable": {
           "$path": "src"
         }
+      },
+      "DevPackages": {
+        "$path": "DevPackages"
       }
     },
 
     "ServerScriptService": {
-      "Runner": {
-        "$path": "runner"
+      "Tests": {
+        "$path": "tests"
       }
     }
   }

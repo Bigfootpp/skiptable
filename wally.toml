@@ -21,3 +21,4 @@ include = [
 [dependencies]
 
 [dev-dependencies]
+spec = "bigfootpp/spec@0.1.0"
