@@ -124,7 +124,7 @@ function SkiptableModule.getRange<K, V>(
 ): { [K]: V }
 	local results: { [K]: V } = {}
 	for k, v, _ in self:iterRange(minKey, maxKey) do
-		results[k] = v
+		table.insert(results, v)
 	end
 
 	return results
