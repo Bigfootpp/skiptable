@@ -6,14 +6,13 @@ function Utils.createNode<K, V>(
 	key: K,
 	value: V,
 	nexts: {Types.Node<K ,V>},
-	prevs: {Types.Node<K, V>}
+	prev: Types.Node<K, V>?
 ): Types.Node<K, V>
-	prevs = setmetatable(table.clone(prevs), {_mode = "v"})
 	local node: Types.Node<K, V> = {
 		key = key,
 		value = value,
 		nexts = nexts,
-		prevs = prevs,
+		prev = if prev then setmetatable({prev}, {_mode = "v"}) else {}
 	}
 	return node
 end
@@ -25,10 +24,13 @@ function Utils.removeNode<K, V>(
 	for level = 1, #update do
 		if update[level] ~= nil and update[level].nexts[level] == node then
 			update[level].nexts[level] = node.nexts[level]
-			if node.nexts[level] ~= nil then
-				node.nexts[level].prevs[level] = update[level]
-			end
 		end
+	end
+
+	local successor = node.nexts[1]
+	if successor ~= nil then
+		local predecessor = if update[1] ~= nil then update[1] else nil
+		successor.prev[1] = predecessor
 	end
 end
 

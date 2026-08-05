@@ -31,7 +31,7 @@ export type Node<K = any, V = any> = {
 	key: K,
 	value: V,
 	nexts: { Node<K, V> },
-	prevs: { Node<K, V> },
+	prev: { Node<K, V> },
 }
 
 export type CompFun<K> = (K, K) -> boolean
