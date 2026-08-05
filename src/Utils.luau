@@ -2,6 +2,22 @@
 local Types = require(script.Parent.Types)
 local Utils = {}
 
+function Utils.createNode<K, V>(
+	key: K,
+	value: V,
+	nexts: {Types.Node<K ,V>},
+	prevs: {Types.Node<K, V>}
+): Types.Node<K, V>
+	prevs = setmetatable(table.clone(prevs), {_mode = "v"})
+	local node: Types.Node<K, V> = {
+		key = key,
+		value = value,
+		nexts = nexts,
+		prevs = prevs,
+	}
+	return node
+end
+
 function Utils.removeNode<K, V>(
 	node: Types.Node<K, V>,
 	update: { Types.Node<K, V> }
@@ -9,6 +25,9 @@ function Utils.removeNode<K, V>(
 	for level = 1, #update do
 		if update[level] ~= nil and update[level].nexts[level] == node then
 			update[level].nexts[level] = node.nexts[level]
+			if node.nexts[level] ~= nil then
+				node.nexts[level].prevs[level] = update[level]
+			end
 		end
 	end
 end

@@ -25,11 +25,7 @@ function SkiptableModule.new<K, V>(t: { [K]: V }?, lessFun: Types.CompFun<K>?): 
 
 	local self = setmetatable({}, SkiptableModule) :: Types.SkiptablePrivate<K, V>
 	self._size = 0
-	self._head = {
-		key = nil :: any,
-		value = nil :: any,
-		nexts = {},
-	}
+	self._head = Utils.createNode(nil :: any, nil :: any, {}, {})
 	self._lessFun = actualLess
 	self._equalFun = function(a: K, b: K): boolean
 		return not actualLess(a, b) and not actualLess(b, a)
@@ -65,6 +61,7 @@ end
 
 function SkiptableModule.clear<K, V>(self: Types.SkiptablePrivate<K, V>): ()
 	self._head.nexts = {}
+	self._head.prevs = {}
 	self._size = 0
 end
 
@@ -104,16 +101,17 @@ function SkiptableModule.set<K, V>(self: Types.SkiptablePrivate<K, V>, key: K, v
 	end
 
 	local nexts: { Types.Node<K, V> } = table.create(nodeLevel) :: any
-	local newNode: Types.Node<K, V> = {
-		key = key,
-		value = value,
-		nexts = nexts,
-	}
+	local prevs: { Types.Node<K, V> } = table.create(nodeLevel) :: any
+	local newNode: Types.Node<K, V> = Utils.createNode(key, value, nexts, prevs)
 
 	for level = 1, nodeLevel do
 		local pred = if update[level] ~= nil then update[level] else self._head
 		nexts[level] = pred.nexts[level]
+		prevs[level] = pred
 		pred.nexts[level] = newNode
+		if nexts[level] ~= nil then
+			nexts[level].prevs[level] = newNode
+		end
 	end
 	self._size += 1
 end
