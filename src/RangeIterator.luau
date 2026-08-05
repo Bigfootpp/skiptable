@@ -6,12 +6,7 @@ local RangeIterator = {}
 RangeIterator.__index = RangeIterator
 
 function RangeIterator.__iter<K, V>(self: Types.RangeIteratorPrivate<K, V>): () -> (K?, V?, Types.Cursor<V>?)
-	return function()
-		if self:hasNext() then
-			return self:next()
-		end
-		return nil, nil, nil
-	end
+	return self:iterate()
 end
 
 function RangeIterator.new<K, V>(
@@ -19,7 +14,8 @@ function RangeIterator.new<K, V>(
 	maxKey: K,
 	lessFun: (K, K) -> boolean,
 	equalFun: (K, K) -> boolean,
-	update: { Types.Node<K, V> }
+	update: { Types.Node<K, V> },
+	skiptable: Types.SkiptablePrivate<K, V>
 ): Types.RangeIteratorPublic<K, V>
 	local self = setmetatable({}, RangeIterator) :: Types.RangeIteratorPrivate<K, V>
 	self._current = startNode
@@ -27,6 +23,7 @@ function RangeIterator.new<K, V>(
 	self._lessFun = lessFun
 	self._equalFun = equalFun
 	self._update = update
+	self._skiptable = skiptable
 	return self
 end
 
@@ -51,6 +48,7 @@ function RangeIterator.next<K, V>(self: Types.RangeIteratorPrivate<K, V>): (K?, 
 	local cursor: Types.Cursor<V> = {
 		remove = function()
 			Utils.removeNode(node, update)
+			self._skiptable._size -= 1
 		end,
 		update = function(value: V)
 			node.value = value
@@ -59,6 +57,15 @@ function RangeIterator.next<K, V>(self: Types.RangeIteratorPrivate<K, V>): (K?, 
 
 	self._current = node.nexts[1]
 	return node.key, node.value, cursor
+end
+
+function RangeIterator.iterate<K, V>(self: Types.RangeIteratorPrivate<K, V>): () -> (K?, V?, Types.Cursor<V>?)
+	return function()
+		if self:hasNext() then
+			return self:next()
+		end
+		return nil, nil, nil
+	end
 end
 
 return RangeIterator

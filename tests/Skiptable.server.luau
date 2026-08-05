@@ -34,6 +34,27 @@ local function skiptableTests()
 		local function verifyAll()
 			local sortedKeys = getSortedKeys()
 
+			expect(skiptable:count()).is(#sortedKeys)
+			expect(#skiptable).is(#sortedKeys)
+
+			if #sortedKeys > 0 then
+				local firstK, firstV = skiptable:first()
+				expect(firstK).is(sortedKeys[1])
+				expect(firstV).is(refMap[sortedKeys[1]])
+
+				local lastK, lastV = skiptable:last()
+				expect(lastK).is(sortedKeys[#sortedKeys])
+				expect(lastV).is(refMap[sortedKeys[#sortedKeys]])
+			else
+				local firstK, firstV = skiptable:first()
+				expect(firstK).is(nil)
+				expect(firstV).is(nil)
+
+				local lastK, lastV = skiptable:last()
+				expect(lastK).is(nil)
+				expect(lastV).is(nil)
+			end
+
 			for _, k in sortedKeys do
 				expect(skiptable:get(k)).is(refMap[k])
 			end
@@ -169,6 +190,40 @@ local function skiptableTests()
 				local removed = skiptable:remove(nonKey)
 				expect(removed).is(false)
 			end
+
+			verifyAll()
+		end)
+
+		test("Step 6 - IterAll and Metamethods", function()
+			local countIterAll = 0
+			for k, v in skiptable:iterAll() do
+				expect(v).is(refMap[k])
+				countIterAll += 1
+			end
+			expect(countIterAll).is(#getSortedKeys())
+
+			local countMetamethod = 0
+			for k, v in skiptable do
+				expect(v).is(refMap[k])
+				countMetamethod += 1
+			end
+			expect(countMetamethod).is(#getSortedKeys())
+		end)
+
+		test("Step 7 - Clear", function()
+			skiptable:clear()
+			refMap = {}
+
+			expect(skiptable:count()).is(0)
+			expect(#skiptable).is(0)
+
+			local firstK, firstV = skiptable:first()
+			expect(firstK).is(nil)
+			expect(firstV).is(nil)
+
+			local lastK, lastV = skiptable:last()
+			expect(lastK).is(nil)
+			expect(lastV).is(nil)
 
 			verifyAll()
 		end)

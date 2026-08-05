@@ -24,6 +24,7 @@ function SkiptableModule.new<K, V>(t: { [K]: V }?, lessFun: Types.CompFun<K>?): 
 	local actualLess = if lessFun ~= nil then lessFun else baseLessFun
 
 	local self = setmetatable({}, SkiptableModule) :: Types.SkiptablePrivate<K, V>
+	self._size = 0
 	self._head = {
 		key = nil :: any,
 		value = nil :: any,
@@ -58,6 +59,40 @@ function SkiptableModule._getPredecessors<K, V>(self: Types.SkiptablePrivate<K, 
 	return update
 end
 
+function SkiptableModule.count<K, V>(self: Types.SkiptablePrivate<K, V>): number
+	return self._size
+end
+
+function SkiptableModule.clear<K, V>(self: Types.SkiptablePrivate<K, V>): ()
+	self._head.nexts = {}
+	self._size = 0
+end
+
+function SkiptableModule.first<K, V>(self: Types.SkiptablePrivate<K, V>): (K?, V?)
+	local firstNode = self._head.nexts[1]
+	if firstNode ~= nil then
+		return firstNode.key, firstNode.value
+	end
+	return nil, nil
+end
+
+function SkiptableModule.last<K, V>(self: Types.SkiptablePrivate<K, V>): (K?, V?)
+	local currentNode = self._head
+	local maxLevel = #self._head.nexts
+	if maxLevel == 0 then return nil, nil end
+
+	for level = maxLevel, 1, -1 do
+		while currentNode.nexts[level] ~= nil do
+			currentNode = currentNode.nexts[level]
+		end
+	end
+
+	if currentNode ~= self._head then
+		return currentNode.key, currentNode.value
+	end
+	return nil, nil
+end
+
 function SkiptableModule.set<K, V>(self: Types.SkiptablePrivate<K, V>, key: K, value: V): ()
 	local nodeLevel = randomLevel()
 	local update = self:_getPredecessors(key)
@@ -80,6 +115,7 @@ function SkiptableModule.set<K, V>(self: Types.SkiptablePrivate<K, V>, key: K, v
 		nexts[level] = pred.nexts[level]
 		pred.nexts[level] = newNode
 	end
+	self._size += 1
 end
 
 function SkiptableModule.remove<K, V>(self: Types.SkiptablePrivate<K, V>, key: K): boolean
@@ -88,6 +124,7 @@ function SkiptableModule.remove<K, V>(self: Types.SkiptablePrivate<K, V>, key: K
 
 	if targetNode ~= nil and self._equalFun(targetNode.key, key) then
 		Utils.removeNode(targetNode, update)
+		self._size -= 1
 		return true
 	end
 
@@ -102,7 +139,17 @@ function SkiptableModule.iterRange<K, V>(
 	local update = self:_getPredecessors(minKey)
 	local startNode = if update[1] ~= nil then update[1].nexts[1] else nil
 
-	return RangeIterator.new(startNode, maxKey, self._lessFun, self._equalFun, update)
+	return RangeIterator.new(startNode, maxKey, self._lessFun, self._equalFun, update, self)
+end
+
+function SkiptableModule.iterAll<K, V>(self: Types.SkiptablePrivate<K, V>): Types.RangeIteratorPublic<K, V>
+	local startNode = self._head.nexts[1]
+	return RangeIterator.new(startNode, nil :: any, function() return true end, function() return false end, {self._head}, self)
+end
+
+function SkiptableModule.__iter<K, V>(self: Types.SkiptablePrivate<K, V>): Types.RangeGenerator<K, V>
+	local iterator = self:iterAll()
+	return iterator:iterate()
 end
 
 function SkiptableModule.get<K, V>(self: Types.SkiptablePrivate<K, V>, key: K): V?
@@ -135,6 +182,10 @@ function SkiptableModule.getRange<K, V>(
 	end
 
 	return results
+end
+
+function SkiptableModule.__len<K, V>(self: Types.SkiptablePrivate<K, V>)
+	return self:count()
 end
 
 return SkiptableModule
