@@ -6,19 +6,19 @@ export type Cursor<V> = {
 }
 
 
-export type RangeGenerator<K, V> = () -> (K?, V?, Cursor<V>?)
+export type Generator<K, V> = () -> (K?, V?, Cursor<V>?)
 
-export type RangeIteratorPublic<K = any, V = any> = typeof(
+export type IteratorPublic<K = any, V = any> = typeof(
 	setmetatable({} :: {
-		hasNext: (self: RangeIteratorPublic<K, V>) -> boolean,
-		next: (self: RangeIteratorPublic<K, V>) -> (K?, V?, Cursor<V>?),
-		iterate: (self: RangeIteratorPublic<K, V>) -> RangeGenerator<K, V>
+		hasNext: (self: IteratorPublic<K, V>) -> boolean,
+		next: (self: IteratorPublic<K, V>) -> (K?, V?, Cursor<V>?),
+		iterate: (self: IteratorPublic<K, V>) -> Generator<K, V>
 	}, {} :: {
-		__iter: (self: RangeIteratorPublic<K, V>) -> RangeGenerator<K, V>
+		__iter: (self: IteratorPublic<K, V>) -> Generator<K, V>
 	})
 )
 
-export type RangeIteratorPrivate<K = any, V = any> = RangeIteratorPublic<K, V> & {
+export type IteratorPrivate<K = any, V = any> = IteratorPublic<K, V> & {
 	_current: Node<K, V>?,
 	_maxKey: K,
 	_lessFun: (K, K) -> boolean,
@@ -46,8 +46,8 @@ export type SkiptablePublic<K = any, V = any> = typeof(
 		remove: (self: SkiptablePublic<K, V>, key: K) -> boolean,
 		get: (self: SkiptablePublic<K, V>, key: K) -> V?,
 		getRange: (self: SkiptablePublic<K, V>, minKey: K, maxKey: K, maxResults: number?) -> { V },
-		iterRange: (self: SkiptablePublic<K, V>, minKey: K, maxKey: K) -> RangeIteratorPublic<K, V>,
-		iterAll: (self: SkiptablePublic<K, V>) -> RangeIteratorPublic<K, V>,
+		iterRange: (self: SkiptablePublic<K, V>, minKey: K, maxKey: K) -> IteratorPublic<K, V>,
+		iterAll: (self: SkiptablePublic<K, V>) -> IteratorPublic<K, V>,
 	}, {} :: {
 		__len: (self: SkiptablePublic<K, V>) -> number
 	})

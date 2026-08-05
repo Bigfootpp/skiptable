@@ -5,7 +5,7 @@ local Utils = require(script.Parent.Utils)
 local RangeIterator = {}
 RangeIterator.__index = RangeIterator
 
-function RangeIterator.__iter<K, V>(self: Types.RangeIteratorPrivate<K, V>): () -> (K?, V?, Types.Cursor<V>?)
+function RangeIterator.__iter<K, V>(self: Types.IteratorPrivate<K, V>): () -> (K?, V?, Types.Cursor<V>?)
 	return self:iterate()
 end
 
@@ -16,8 +16,8 @@ function RangeIterator.new<K, V>(
 	equalFun: (K, K) -> boolean,
 	update: { Types.Node<K, V> },
 	skiptable: Types.SkiptablePrivate<K, V>
-): Types.RangeIteratorPublic<K, V>
-	local self = setmetatable({}, RangeIterator) :: Types.RangeIteratorPrivate<K, V>
+): Types.IteratorPublic<K, V>
+	local self = setmetatable({}, RangeIterator) :: Types.IteratorPrivate<K, V>
 	self._current = startNode
 	self._maxKey = maxKey
 	self._lessFun = lessFun
@@ -27,7 +27,7 @@ function RangeIterator.new<K, V>(
 	return self
 end
 
-function RangeIterator.hasNext<K, V>(self: Types.RangeIteratorPrivate<K, V>): boolean
+function RangeIterator.hasNext<K, V>(self: Types.IteratorPrivate<K, V>): boolean
 	local current = self._current
 	if current == nil then
 		return false
@@ -35,7 +35,7 @@ function RangeIterator.hasNext<K, V>(self: Types.RangeIteratorPrivate<K, V>): bo
 	return self._lessFun(current.key, self._maxKey) or self._equalFun(current.key, self._maxKey)
 end
 
-function RangeIterator.next<K, V>(self: Types.RangeIteratorPrivate<K, V>): (K?, V?, Types.Cursor<V>?)
+function RangeIterator.next<K, V>(self: Types.IteratorPrivate<K, V>): (K?, V?, Types.Cursor<V>?)
 	if not self:hasNext() then
 		return nil, nil, nil
 	end
@@ -59,7 +59,7 @@ function RangeIterator.next<K, V>(self: Types.RangeIteratorPrivate<K, V>): (K?, 
 	return node.key, node.value, cursor
 end
 
-function RangeIterator.iterate<K, V>(self: Types.RangeIteratorPrivate<K, V>): () -> (K?, V?, Types.Cursor<V>?)
+function RangeIterator.iterate<K, V>(self: Types.IteratorPrivate<K, V>): () -> (K?, V?, Types.Cursor<V>?)
 	return function()
 		if self:hasNext() then
 			return self:next()

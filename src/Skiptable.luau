@@ -138,19 +138,19 @@ function SkiptableModule.iterRange<K, V>(
 	self: Types.SkiptablePrivate<K, V>,
 	minKey: K,
 	maxKey: K
-): Types.RangeIteratorPublic<K, V>
+): Types.IteratorPublic<K, V>
 	local update = self:_getPredecessors(minKey)
 	local startNode = if update[1] ~= nil then update[1].nexts[1] else nil
 
 	return RangeIterator.new(startNode, maxKey, self._lessFun, self._equalFun, update, self)
 end
 
-function SkiptableModule.iterAll<K, V>(self: Types.SkiptablePrivate<K, V>): Types.RangeIteratorPublic<K, V>
+function SkiptableModule.iterAll<K, V>(self: Types.SkiptablePrivate<K, V>): Types.IteratorPublic<K, V>
 	local startNode = self._head.nexts[1]
 	return RangeIterator.new(startNode, nil :: any, function() return true end, function() return false end, {self._head}, self)
 end
 
-function SkiptableModule.__iter<K, V>(self: Types.SkiptablePrivate<K, V>): Types.RangeGenerator<K, V>
+function SkiptableModule.__iter<K, V>(self: Types.SkiptablePrivate<K, V>): Types.Generator<K, V>
 	local iterator = self:iterAll()
 	return iterator:iterate()
 end
